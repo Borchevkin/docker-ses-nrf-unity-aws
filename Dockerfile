@@ -3,7 +3,7 @@ FROM ubuntu:20.04
 WORKDIR /root/
 
 # Install main deps
-RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential git unzip python3-pip bzip2 wget curl libfreetype6 libxrender1 libfontconfig1 && apt-get clean
+RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential git unzip python3-pip ruby bzip2 wget curl libfreetype6 libxrender1 libfontconfig1 && apt-get clean
 RUN mkdir install && cd install
 
 # Upgrade and set up the pip
@@ -24,6 +24,9 @@ RUN wget -c https://www.nordicsemi.com/-/media/Software-and-other-downloads/Desk
 
 # Install nRF Util
 RUN pip3 install nrfutil
+
+# Install Ceedling
+RUN gem install ceedling
 
 # Clean pip cache
 RUN pip3 cache purge
