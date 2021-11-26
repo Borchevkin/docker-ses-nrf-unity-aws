@@ -1,10 +1,25 @@
 FROM ubuntu:20.04
 
-WORKDIR /root/
+# Set up envs
+ENV GOROOT="/opt/go"
+ENV GORBIN="/opt/go/bin"
+ENV PATH=/opt/ses/bin:$PATH
+ENV PATH=$PATH:/opt/go/bin
+ENV PATH=$PATH:/root/go/bin
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install main deps
-RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential git unzip python3-pip ruby bzip2 wget curl libfreetype6 libxrender1 libfontconfig1 && apt-get clean
-RUN mkdir install && cd install
+RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential groff less gcc make git unzip python3-pip ruby bzip2 wget curl libfreetype6 libxrender1 libfontconfig1 && apt-get clean
+
+# Create install dir for delete it after install
+RUN mkdir install
+WORKDIR /root/install
+
+# Install golang
+RUN wget https://golang.org/dl/go1.17.3.linux-amd64.tar.gz && tar -C /opt -xzf go1.17.3.linux-amd64.tar.gz
+
+# Install goembehelp
+RUN go get github.com/borchevkin/goembehelp@latest
 
 # Upgrade and set up the pip
 RUN pip3 install --upgrade pip
@@ -16,7 +31,6 @@ RUN wget https://dl.segger.com/files/embedded-studio/Setup_EmbeddedStudio_ARM_v5
 RUN /bin/sh -c '/bin/echo -e "yes\n" | ./arm_segger_embedded_studio_542b_linux_x64/install_segger_embedded_studio --copy-files-to /opt/ses'
 
 # Install aws-cli and boto3
-RUN wget -c -q "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
 RUN pip3 install awscli boto3
 
 # Install command - line tools
@@ -32,8 +46,6 @@ RUN gem install ceedling
 RUN pip3 cache purge
 
 # Clean install files
-RUN cd /root
-RUN rm -r -f install/
+WORKDIR /root
+RUN rm -r -f /root/install/
 
-# Set up PATH
-ENV PATH=/opt/ses/bin:$PATH
